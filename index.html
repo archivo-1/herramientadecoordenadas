@@ -73,7 +73,7 @@
             const geojson = JSON.parse(input);
             let geometry;
 
-            // Check if the input is a FeatureCollection or a single Feature
+            // Check if the input is a FeatureCollection, a single Feature, or a direct geometry object
             if (geojson.type === "FeatureCollection" && geojson.features.length > 0) {
                 geometry = geojson.features[0].geometry;
             } else if (geojson.type === "Feature" && geojson.geometry) {
@@ -85,14 +85,20 @@
                 output.value = 'Invalid GeoJSON. Please ensure you are pasting a valid GeoJSON object, Feature, or FeatureCollection.';
                 return;
             }
-            
-            // Reorder the keys to place 'type' first for consistency
-            const orderedGeometry = {
-                type: geometry.type,
-                coordinates: geometry.coordinates
-            };
 
-            const geometryString = JSON.stringify(orderedGeometry);
+            let geometryString;
+            // Check if geometry type is LineString or MultiLineString to reorder keys
+            if (geometry.type === "LineString" || geometry.type === "MultiLineString") {
+                const orderedGeometry = {
+                    type: geometry.type,
+                    coordinates: geometry.coordinates
+                };
+                geometryString = JSON.stringify(orderedGeometry);
+            } else {
+                // For all other types, just stringify the original object
+                geometryString = JSON.stringify(geometry);
+            }
+
             output.value = geometryString.replace(/\s+/g, '');
             
         } catch (e) {
