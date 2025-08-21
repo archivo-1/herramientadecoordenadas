@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoJSON to String Converter</title>
+    <title>Convertir GeoJSON a Sheets String</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,11 +57,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>GeoJSON to Sheets String Converter</h1>
-        <p>Paste your GeoJSON geometry here:</p>
-        <textarea id="inputGeoJSON" placeholder='Paste GeoJSON geometry here. Example: {"type":"Point","coordinates":[1,2]} or {"type":"LineString","coordinates":[[1,2],[3,4]]}'></textarea>
-        <button onclick="convertToSingleLine()">Convert to Single Line</button>
-        <p>Copy this result to your Google Sheet:</p>
+        <h1>Convertir GeoJSON a Sheets String</h1>
+        <p>Pegar geometría GeoJSON aquí:</p>
+        <textarea id="inputGeoJSON" placeholder='Pegar geometría GeoJSON aquí. Ejemplo: {"type":"Point","coordinates":[1,2]} o {"type":"LineString","coordinates":[[1,2],[3,4]]}'></textarea>
+        <button onclick="convertToSingleLine()">Convertir a una línea de texto</button>
+        <p>Copiar este resultado en Google Sheets:</p>
         <textarea id="outputGeoJSON" readonly></textarea>
     </div>
     <script>
@@ -78,7 +78,7 @@
                     output.value = geometryString.replace(/\s+/g, '');
                 }
             } catch (e) {
-                output.value = 'Invalid GeoJSON. Please check your input.';
+                output.value = 'GeoJSON inválido. Revisar instrucciones.';
             }
         }
     </script>
