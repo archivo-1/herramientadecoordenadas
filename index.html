@@ -65,22 +65,40 @@
         <textarea id="outputGeoJSON" readonly></textarea>
     </div>
     <script>
-        function convertToSingleLine() {
-            const input = document.getElementById('inputGeoJSON').value;
-            const output = document.getElementById('outputGeoJSON');
-            
-            try {
-                const geojson = JSON.parse(input);
-                if (!geojson.geometry) {
-                    output.value = input.replace(/\s+/g, '');
-                } else {
-                    const geometryString = JSON.stringify(geojson.geometry);
-                    output.value = geometryString.replace(/\s+/g, '');
-                }
-            } catch (e) {
-                output.value = 'GeoJSON inválido. Revisar instrucciones.';
+    function convertToSingleLine() {
+        const input = document.getElementById('inputGeoJSON').value;
+        const output = document.getElementById('outputGeoJSON');
+        
+        try {
+            const geojson = JSON.parse(input);
+            let geometry;
+
+            // Check if the input is a FeatureCollection or a single Feature
+            if (geojson.type === "FeatureCollection" && geojson.features.length > 0) {
+                geometry = geojson.features[0].geometry;
+            } else if (geojson.type === "Feature" && geojson.geometry) {
+                geometry = geojson.geometry;
+            } else if (geojson.coordinates && geojson.type) {
+                // If it's a direct geometry object, use it.
+                geometry = geojson;
+            } else {
+                output.value = 'Invalid GeoJSON. Please ensure you are pasting a valid GeoJSON object, Feature, or FeatureCollection.';
+                return;
             }
+            
+            // Reorder the keys to place 'type' first for consistency
+            const orderedGeometry = {
+                type: geometry.type,
+                coordinates: geometry.coordinates
+            };
+
+            const geometryString = JSON.stringify(orderedGeometry);
+            output.value = geometryString.replace(/\s+/g, '');
+            
+        } catch (e) {
+            output.value = 'Invalid GeoJSON. Please check your input.';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
