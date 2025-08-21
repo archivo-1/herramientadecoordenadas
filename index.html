@@ -3,125 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoJSON to Single Line</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>GeoJSON to String Converter</title>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
         }
-        /* Custom scrollbar for textareas */
-        textarea::-webkit-scrollbar {
-            width: 8px;
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        textarea::-webkit-scrollbar-track {
-            background: #f1f5f9; /* slate-100 */
-            border-radius: 10px;
+        h1 {
+            text-align: center;
+            color: #333;
         }
-        textarea::-webkit-scrollbar-thumb {
-            background: #cbd5e1; /* slate-300 */
-            border-radius: 10px;
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 10px;
+            background-color: #e2e2e2;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+            word-wrap: break-word;
         }
     </style>
 </head>
-<body class="bg-gray-100 p-8 flex flex-col items-center justify-center min-h-screen text-slate-800">
-    <div class="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-        <h1 class="text-3xl font-bold mb-4 text-center text-slate-900">GeoJSON to Single Line</h1>
-        <p class="text-center text-slate-600 mb-6">Paste your GeoJSON code below, and the tool will automatically format it to a single line for your sheets.</p>
-
-        <!-- Input Area -->
-        <div class="mb-6">
-            <label for="input-geojson" class="block text-sm font-medium text-slate-700 mb-2">Paste GeoJSON here:</label>
-            <textarea id="input-geojson"
-                class="w-full h-48 p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
-                placeholder="Paste your GeoJSON object here..."></textarea>
-        </div>
-
-        <!-- Output Area -->
-        <div class="mb-4">
-            <label for="output-geojson" class="block text-sm font-medium text-slate-700 mb-2">Formatted GeoJSON:</label>
-            <textarea id="output-geojson"
-                class="w-full h-32 p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
-                readonly
-                placeholder="The single-line GeoJSON will appear here..."></textarea>
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <button id="copy-button"
-                class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Copy to Clipboard
-            </button>
-            <button id="clear-button"
-                class="w-full sm:w-auto px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                Clear
-            </button>
-        </div>
-
-        <!-- Message Box -->
-        <div id="message-box" class="mt-6 text-center text-sm font-medium text-gray-700 opacity-0 transition-opacity duration-300"></div>
+<body>
+    <div class="container">
+        <h1>GeoJSON to Sheets String Converter</h1>
+        <p>Paste your GeoJSON geometry here:</p>
+        <textarea id="inputGeoJSON" placeholder='Paste GeoJSON geometry here. Example: {"type":"Point","coordinates":[1,2]} or {"type":"LineString","coordinates":[[1,2],[3,4]]}'></textarea>
+        <button onclick="convertToSingleLine()">Convert to Single Line</button>
+        <p>Copy this result to your Google Sheet:</p>
+        <textarea id="outputGeoJSON" readonly></textarea>
     </div>
-
     <script>
-        const inputTextArea = document.getElementById('input-geojson');
-        const outputTextArea = document.getElementById('output-geojson');
-        const copyButton = document.getElementById('copy-button');
-        const clearButton = document.getElementById('clear-button');
-        const messageBox = document.getElementById('message-box');
-
-        function showMessage(text, isError = false) {
-            messageBox.textContent = text;
-            messageBox.classList.remove('text-gray-700', 'text-red-500');
-            messageBox.classList.add(isError ? 'text-red-500' : 'text-gray-700');
-            messageBox.classList.remove('opacity-0');
-            messageBox.classList.add('opacity-100');
-            setTimeout(() => {
-                messageBox.classList.remove('opacity-100');
-                messageBox.classList.add('opacity-0');
-            }, 3000);
-        }
-
-        // Event listener for input changes
-        inputTextArea.addEventListener('input', () => {
+        function convertToSingleLine() {
+            const input = document.getElementById('inputGeoJSON').value;
+            const output = document.getElementById('outputGeoJSON');
+            
             try {
-                // Parse the GeoJSON to remove extra spaces and newlines
-                const parsedGeoJSON = JSON.parse(inputTextArea.value);
-                // Convert it back to a single line string without indentation
-                const singleLineString = JSON.stringify(parsedGeoJSON);
-                outputTextArea.value = singleLineString;
-            } catch (e) {
-                outputTextArea.value = ''; // Clear output on invalid input
-            }
-        });
-
-        // Event listener for copy button
-        copyButton.addEventListener('click', () => {
-            if (outputTextArea.value) {
-                // Use the alternative clipboard method for better compatibility
-                const el = document.createElement('textarea');
-                el.value = outputTextArea.value;
-                document.body.appendChild(el);
-                el.select();
-                try {
-                    document.execCommand('copy');
-                    showMessage('Copied to clipboard!');
-                } catch (err) {
-                    showMessage('Failed to copy. Please copy manually.', true);
+                const geojson = JSON.parse(input);
+                if (!geojson.geometry) {
+                    output.value = input.replace(/\s+/g, '');
+                } else {
+                    const geometryString = JSON.stringify(geojson.geometry);
+                    output.value = geometryString.replace(/\s+/g, '');
                 }
-                document.body.removeChild(el);
-            } else {
-                showMessage('Nothing to copy.', true);
+            } catch (e) {
+                output.value = 'Invalid GeoJSON. Please check your input.';
             }
-        });
-
-        // Event listener for clear button
-        clearButton.addEventListener('click', () => {
-            inputTextArea.value = '';
-            outputTextArea.value = '';
-            showMessage('Cleared.');
-        });
+        }
     </script>
 </body>
 </html>
